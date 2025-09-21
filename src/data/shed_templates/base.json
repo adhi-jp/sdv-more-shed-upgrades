@@ -1,0 +1,98 @@
+{
+  "Changes": [
+    {
+      "LogName": "Loading interior map",
+      "Action": "Load",
+      "Target": "Maps/{{BuildingId}}",
+      "FromFile": "assets/Maps/{{BuildingName}}.tbin"
+    },
+    {
+      "LogName": "Loading custom texture (if available)",
+      "Action": "Load",
+      "Target": "Buildings/{{BuildingId}}",
+      "FromFile": "assets/Buildings/{{BuildingName}}.png",
+      "When": {
+        "HasFile:{{FromFile}}": "true"
+      }
+    },
+    {
+      "LogName": "Loading custom paint mask (if available)",
+      "Action": "Load",
+      "Target": "Buildings/{{BuildingId}}_PaintMask",
+      "FromFile": "assets/Buildings/{{BuildingName}}_PaintMask.png",
+      "When": {
+        "HasFile:{{FromFile}}": "true"
+      }
+    },
+    {
+      "LogName": "Configuring paint data for building",
+      "Action": "EditData",
+      "Target": "Data/PaintData",
+      "Entries": {
+        "{{BuildingId}}": "Building/-45 -10/Roof/-20 5/Trim/-25 0"
+      }
+    },
+    {
+      "LogName": "Removing paint data (custom texture without paint mask)",
+      "Action": "EditData",
+      "Target": "Data/PaintData",
+      "Entries": {
+        "{{BuildingId}}": null
+      },
+      "When": {
+        "HasFile:assets/Buildings/{{BuildingName}}.png": "true",
+        "HasFile:assets/Buildings/{{BuildingName}}_PaintMask.png": "false"
+      }
+    },
+    {
+      "LogName": "Registering building definition and properties",
+      "Action": "EditData",
+      "Target": "Data/Buildings",
+      "Entries": {
+        "{{BuildingId}}": {
+          "Id": "{{BuildingId}}",
+          "Name": "{{i18n: building.{{BuildingName}}.name}}",
+          "Description": "{{i18n: building.{{BuildingName}}.description}}",
+          "Texture": "Buildings/Big Shed",
+          "DrawShadow": true,
+          "UpgradeSignTile": "4.8125, 2",
+          "UpgradeSignHeight": 20.0,
+          "Size": {
+            "X": 7,
+            "Y": 3
+          },
+          "FadeWhenBehind": true,
+          "SourceRect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 112,
+            "Height": 128
+          },
+          "Builder": "Robin",
+          "BuildDays": "{{BuildDays}}",
+          "BuildCost": "{{BuildCost}}",
+          "BuildingToUpgrade": "{{BuildingToUpgrade}}",
+          "MagicalConstruction": false,
+          "HumanDoor": {
+            "X": 3,
+            "Y": 2
+          },
+          "IndoorMap": "{{BuildingId}}",
+          "IndoorMapType": "StardewValley.Shed"
+        }
+      }
+    },
+    {
+      "LogName": "Applying custom texture to building (if available)",
+      "Action": "EditData",
+      "Target": "Data/Buildings",
+      "TargetField": ["{{BuildingId}}"],
+      "Entries": {
+        "Texture": "Buildings/{{BuildingId}}"
+      },
+      "When": {
+        "HasFile:assets/Buildings/{{BuildingName}}.png": "true"
+      }
+    }
+  ]
+}

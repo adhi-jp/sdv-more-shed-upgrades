@@ -1,0 +1,19 @@
+Custom Textures – More Shed Upgrades
+
+Place your custom building textures in this folder.
+
+How it works:
+- This mod does not include any built‑in shed textures.
+- If a required file is missing here, this mod will fall back to the vanilla "Big Shed" texture.
+- Only files placed in this folder will be used to customize the sheds.
+
+How to use:
+1) Put PNG files here for each shed you want to customize.
+2) Filenames must match exactly (spelling and casing):
+   - DeluxeShed.png
+   - DeluxeShed_PaintMask.png
+   - GalaxyShed.png
+   - GalaxyShed_PaintMask.png
+   - InfinityShed.png
+   - InfinityShed_PaintMask.png
+3) You can include just some of the files; missing ones will use the vanilla Big Shed texture.

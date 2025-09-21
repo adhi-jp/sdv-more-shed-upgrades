@@ -1,0 +1,27 @@
+{
+  "Changes": [
+    {
+      "LogName": "Loading base template configuration",
+      "Action": "Include",
+      "FromFile": "data/shed_templates/base.json"
+    },
+    {
+      "LogName": "Configuring two-material build cost",
+      "Action": "EditData",
+      "Target": "Data/Buildings",
+      "TargetField": ["{{BuildingId}}"],
+      "Entries": {
+        "BuildMaterials": [
+          {
+            "ItemId": "{{Material1ItemId}}",
+            "Amount": "{{Material1Amount}}"
+          },
+          {
+            "ItemId": "{{Material2ItemId}}",
+            "Amount": "{{Material2Amount}}"
+          }
+        ]
+      }
+    }
+  ]
+}

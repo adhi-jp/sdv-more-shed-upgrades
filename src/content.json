@@ -1,0 +1,230 @@
+{
+  "Format": "2.7.0",
+  "ConfigSchema": {
+    "DeluxeShedMaterial1ItemId": {
+      "Default": "(O)709",
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedMaterial1Amount": {
+      "Default": 200,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedMaterial2ItemId": {
+      "Default": "(O)390",
+      "AllowBlank": true,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedMaterial2Amount": {
+      "Default": 550,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedMaterial3ItemId": {
+      "AllowBlank": true,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedMaterial3Amount": {
+      "Default": 0,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedBuildDays": {
+      "Default": 3,
+      "Section": "DeluxeShed"
+    },
+    "DeluxeShedBuildCost": {
+      "Default": 40000,
+      "Section": "DeluxeShed"
+    },
+    "GalaxyShedMaterial1ItemId": {
+      "Default": "(O)709",
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedMaterial1Amount": {
+      "Default": 300,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedMaterial2ItemId": {
+      "Default": "(O)74",
+      "AllowBlank": true,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedMaterial2Amount": {
+      "Default": 1,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedMaterial3ItemId": {
+      "Default": "(O)337",
+      "AllowBlank": true,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedMaterial3Amount": {
+      "Default": 20,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedBuildDays": {
+      "Default": 3,
+      "Section": "GalaxyShed"
+    },
+    "GalaxyShedBuildCost": {
+      "Default": 80000,
+      "Section": "GalaxyShed"
+    },
+    "InfinityShedMaterial1ItemId": {
+      "Default": "(O)896",
+      "Section": "InfinityShed"
+    },
+    "InfinityShedMaterial1Amount": {
+      "Default": 3,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedMaterial2ItemId": {
+      "Default": "(O)74",
+      "AllowBlank": true,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedMaterial2Amount": {
+      "Default": 3,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedMaterial3ItemId": {
+      "Default": "(O)337",
+      "AllowBlank": true,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedMaterial3Amount": {
+      "Default": 40,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedBuildDays": {
+      "Default": 4,
+      "Section": "InfinityShed"
+    },
+    "InfinityShedBuildCost": {
+      "Default": 160000,
+      "Section": "InfinityShed"
+    }
+  },
+  "DynamicTokens": [
+    {
+      "Name": "DeluxeShedTemplate",
+      "Value": "1material.json"
+    },
+    {
+      "Name": "DeluxeShedTemplate",
+      "Value": "2materials.json",
+      "When": {
+        "HasValue:{{DeluxeShedMaterial1ItemId}}": "true",
+        "HasValue:{{DeluxeShedMaterial2ItemId}}": "true",
+        "HasValue:{{DeluxeShedMaterial3ItemId}}": "false"
+      }
+    },
+    {
+      "Name": "DeluxeShedTemplate",
+      "Value": "3materials.json",
+      "When": {
+        "HasValue:{{GalaxyShedMaterial1ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial2ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial3ItemId}}": "true"
+      }
+    },
+    {
+      "Name": "GalaxyShedTemplate",
+      "Value": "1material.json"
+    },
+    {
+      "Name": "GalaxyShedTemplate",
+      "Value": "2materials.json",
+      "When": {
+        "HasValue:{{GalaxyShedMaterial1ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial2ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial3ItemId}}": "false"
+      }
+    },
+    {
+      "Name": "GalaxyShedTemplate",
+      "Value": "3materials.json",
+      "When": {
+        "HasValue:{{GalaxyShedMaterial1ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial2ItemId}}": "true",
+        "HasValue:{{GalaxyShedMaterial3ItemId}}": "true"
+      }
+    },
+    {
+      "Name": "InfinityShedTemplate",
+      "Value": "1material.json"
+    },
+    {
+      "Name": "InfinityShedTemplate",
+      "Value": "2materials.json",
+      "When": {
+        "HasValue:{{InfinityShedMaterial1ItemId}}": "true",
+        "HasValue:{{InfinityShedMaterial2ItemId}}": "true",
+        "HasValue:{{InfinityShedMaterial3ItemId}}": "false"
+      }
+    },
+    {
+      "Name": "InfinityShedTemplate",
+      "Value": "3materials.json",
+      "When": {
+        "HasValue:{{InfinityShedMaterial1ItemId}}": "true",
+        "HasValue:{{InfinityShedMaterial2ItemId}}": "true",
+        "HasValue:{{InfinityShedMaterial3ItemId}}": "true"
+      }
+    }
+  ],
+  "Changes": [
+    {
+      "LogName": "Include Deluxe Shed template",
+      "Action": "Include",
+      "FromFile": "data/shed_templates/{{DeluxeShedTemplate}}",
+      "LocalTokens": {
+        "BuildingName": "DeluxeShed",
+        "BuildingId": "{{ModId}}_DeluxeShed",
+        "Material1ItemId": "{{DeluxeShedMaterial1ItemId}}",
+        "Material1Amount": "{{DeluxeShedMaterial1Amount}}",
+        "Material2ItemId": "{{DeluxeShedMaterial2ItemId}}",
+        "Material2Amount": "{{DeluxeShedMaterial2Amount}}",
+        "Material3ItemId": "{{DeluxeShedMaterial3ItemId}}",
+        "Material3Amount": "{{DeluxeShedMaterial3Amount}}",
+        "BuildDays": "{{DeluxeShedBuildDays}}",
+        "BuildCost": "{{DeluxeShedBuildCost}}",
+        "BuildingToUpgrade": "Big Shed"
+      }
+    },
+    {
+      "LogName": "Include Galaxy Shed template",
+      "Action": "Include",
+      "FromFile": "data/shed_templates/{{GalaxyShedTemplate}}",
+      "LocalTokens": {
+        "BuildingName": "GalaxyShed",
+        "BuildingId": "{{ModId}}_GalaxyShed",
+        "Material1ItemId": "{{GalaxyShedMaterial1ItemId}}",
+        "Material1Amount": "{{GalaxyShedMaterial1Amount}}",
+        "Material2ItemId": "{{GalaxyShedMaterial2ItemId}}",
+        "Material2Amount": "{{GalaxyShedMaterial2Amount}}",
+        "Material3ItemId": "{{GalaxyShedMaterial3ItemId}}",
+        "Material3Amount": "{{GalaxyShedMaterial3Amount}}",
+        "BuildDays": "{{GalaxyShedBuildDays}}",
+        "BuildCost": "{{GalaxyShedBuildCost}}",
+        "BuildingToUpgrade": "{{ModId}}_DeluxeShed"
+      }
+    },
+    {
+      "LogName": "Include Infinity Shed template",
+      "Action": "Include",
+      "FromFile": "data/shed_templates/{{InfinityShedTemplate}}",
+      "LocalTokens": {
+        "BuildingName": "InfinityShed",
+        "BuildingId": "{{ModId}}_InfinityShed",
+        "Material1ItemId": "{{InfinityShedMaterial1ItemId}}",
+        "Material1Amount": "{{InfinityShedMaterial1Amount}}",
+        "Material2ItemId": "{{InfinityShedMaterial2ItemId}}",
+        "Material2Amount": "{{InfinityShedMaterial2Amount}}",
+        "Material3ItemId": "{{InfinityShedMaterial3ItemId}}",
+        "Material3Amount": "{{InfinityShedMaterial3Amount}}",
+        "BuildDays": "{{InfinityShedBuildDays}}",
+        "BuildCost": "{{InfinityShedBuildCost}}",
+        "BuildingToUpgrade": "{{ModId}}_GalaxyShed"
+      }
+    }
+  ]
+}

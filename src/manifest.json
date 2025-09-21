@@ -1,0 +1,11 @@
+﻿{
+  "Name": "[CP] More Shed Upgrades",
+  "Author": "adhi sang",
+  "Version": "1.0.0",
+  "Description": "Adds three upgrades larger than the Big Shed: the Deluxe Shed, Galaxy Shed, and Infinity Shed.",
+  "UniqueID": "jp.adhi.MoreShedUpgrades",
+  "UpdateKeys": ["Nexus:37776"],
+  "ContentPackFor": {
+    "UniqueID": "Pathoschild.ContentPatcher"
+  }
+}
