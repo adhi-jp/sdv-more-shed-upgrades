@@ -95,7 +95,26 @@ try {
 
   Write-Info "Creating zip archive '$zipPath' from directory '$tempPath'..."
   Add-Type -AssemblyName System.IO.Compression.FileSystem
-  [System.IO.Compression.ZipFile]::CreateFromDirectory($tempPath, $zipPath)
+
+  # Create temporary zip directory that only contains our target folder
+  $zipTempDir = Join-Path $buildDir "zip_temp"
+  if (Test-Path $zipTempDir) {
+    Remove-Item -LiteralPath $zipTempDir -Recurse -Force
+  }
+  New-Item -ItemType Directory -Path $zipTempDir -Force | Out-Null
+
+  # Move temp folder to zip temp directory
+  $zipSourcePath = Join-Path $zipTempDir $TempDirName
+  Move-Item -LiteralPath $tempPath -Destination $zipSourcePath
+
+  # Create zip from the zip temp directory (includes the folder name)
+  [System.IO.Compression.ZipFile]::CreateFromDirectory($zipTempDir, $zipPath, 'Optimal', $false)
+
+  # Move the folder back for cleanup
+  Move-Item -LiteralPath $zipSourcePath -Destination $tempPath
+
+  # Clean up zip temp directory
+  Remove-Item -LiteralPath $zipTempDir -Recurse -Force
 
   Write-Info "Zip created successfully: $zipPath"
 
