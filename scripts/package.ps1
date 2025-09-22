@@ -2,6 +2,7 @@ param(
   [string]$SrcDir = "src",
   [string]$TempDirName = "[CP] More Shed Upgrades",
   [string]$ZipName = "",
+  [string]$SevenZipPath = $null,
   [switch]$SetTimestamp,
   [DateTime]$TimestampValue = (Get-Date)
 )
@@ -13,17 +14,144 @@ function Write-Info($msg) {
   Write-Host "[INFO] $msg"
 }
 
-function Write-ErrorAndExit($msg) {
+function Write-ErrorAndExit($msg, $ExitCode = 1) {
   Write-Host "[ERROR] $msg" -ForegroundColor Red
-  exit 1
+  exit $ExitCode
 }
 
 function Set-AllTimestamps($Path, $DateTime) {
   Write-Info "Setting all timestamps to $DateTime..."
-  Get-ChildItem -LiteralPath $Path -Recurse | ForEach-Object {
-    $_.CreationTime = $DateTime
-    $_.LastWriteTime = $DateTime
-    $_.LastAccessTime = $DateTime
+  try {
+    # Set on the root path itself first
+    if (Test-Path -LiteralPath $Path) {
+      $root = Get-Item -LiteralPath $Path -ErrorAction Stop
+      $root.CreationTime = $DateTime
+      $root.LastWriteTime = $DateTime
+      $root.LastAccessTime = $DateTime
+    }
+    Get-ChildItem -LiteralPath $Path -Recurse -ErrorAction Stop | ForEach-Object {
+      $_.CreationTime = $DateTime
+      $_.LastWriteTime = $DateTime
+      $_.LastAccessTime = $DateTime
+    }
+  } catch {
+    Write-ErrorAndExit "Failed to set timestamps: $_"
+  }
+}
+
+# Helper function to check for null or whitespace strings
+function Test-IsNullOrWhiteSpace([string]$value) {
+  return [string]::IsNullOrWhiteSpace($value)
+}
+
+# Resolve 7-Zip executable path from parameter, environment variables, or PATH
+function Resolve-SevenZip([string]$PathParam) {
+  function Resolve-Candidate([string]$cand) {
+    if (Test-IsNullOrWhiteSpace $cand) { return $null }
+
+    # If a directory is provided, try common exe names inside it
+    if (Test-Path -LiteralPath $cand -PathType Container) {
+      foreach ($exe in '7z.exe','7zz.exe','7za.exe','7zG.exe') {
+        $p = Join-Path $cand $exe
+        if (Test-Path -LiteralPath $p -PathType Leaf) { return (Resolve-Path -LiteralPath $p).Path }
+      }
+    }
+
+    # If a file path is provided, accept it when it exists
+    if (Test-Path -LiteralPath $cand -PathType Leaf) { return (Resolve-Path -LiteralPath $cand).Path }
+
+    # Otherwise, treat as a command name and search PATH (applications only)
+    $cmd = Get-Command $cand -CommandType Application -ErrorAction SilentlyContinue
+    if ($cmd) {
+      # Prefer first match's Path
+      $first = @($cmd)[0]
+      if ($first -and $first.Path) { return $first.Path }
+    }
+    return $null
+  }
+
+  # 1) Explicit parameter
+  $p = Resolve-Candidate $PathParam
+  if ($p) { return $p }
+
+  # 2) Environment variables
+  $envCandidates = @(
+    $env:SEVEN_ZIP_PATH,
+    $env:SEVENZIP_PATH,
+    $env:SEVEN_ZIP,
+    $env:SEVENZIP,
+    $env:ZIP7_PATH,
+    $env:SEVEN_ZIP_EXE,
+    $env:SEVENZIP_EXE
+  ) | Where-Object { -not (Test-IsNullOrWhiteSpace $_) }
+
+  foreach ($cand in $envCandidates) {
+    $p = Resolve-Candidate $cand
+    if ($p) { return $p }
+  }
+
+  # 3) Common command names in PATH
+  foreach ($name in '7z','7zz','7za','7zG') {
+    $p = Resolve-Candidate $name
+    if ($p) { return $p }
+  }
+
+  Write-ErrorAndExit "7-Zip executable not found. Provide -SevenZipPath or set environment variable (e.g., SEVEN_ZIP_PATH)."
+}
+
+# Function to get version from manifest.json
+function Get-VersionFromManifest([string]$SrcPath) {
+  $manifestPath = Join-Path $SrcPath 'manifest.json'
+  if (-not (Test-Path $manifestPath)) {
+    Write-Info "Warning: manifest.json not found at '$manifestPath' - proceeding without version."
+    return ''
+  }
+
+  try {
+    $manifestText = Get-Content -LiteralPath $manifestPath -Raw -ErrorAction Stop
+    $manifest = ConvertFrom-Json $manifestText
+    if ($manifest.Version) {
+      return $manifest.Version
+    } else {
+      return ''
+    }
+  } catch {
+    Write-Info "Warning: failed to read version from '$manifestPath' - proceeding without version."
+    return ''
+  }
+}
+
+# Function to generate ZIP filename
+function Get-ZipFileName([string]$ZipName, [string]$Version) {
+  if (-not (Test-IsNullOrWhiteSpace $ZipName)) {
+    return $ZipName
+  }
+
+  if (-not (Test-IsNullOrWhiteSpace $Version)) {
+    $safeVersion = ($Version -replace '[\\/:*?"<>|]', '_')
+    return "MoreShedUpgrades_v${safeVersion}.zip"
+  }
+
+  return "MoreShedUpgrades.zip"
+}
+
+# Function to execute 7-Zip compression
+function Invoke-SevenZipCompress([string]$SevenZipExe, [string]$ZipName, [string]$TempDirName) {
+  $compressionArgs = @(
+    'a',           # Add to archive
+    '-tzip',       # Zip format
+    '-mx=9',       # Maximum compression
+    '-mm=Deflate', # Deflate method
+    '-mcu=on',     # UTF-8 encoding
+    '-y',          # Yes to all prompts
+    $ZipName,
+    $TempDirName
+  )
+
+  Write-Info "Creating zip archive '$ZipName' from folder '$TempDirName' via 7-Zip..."
+  & $SevenZipExe @compressionArgs | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    throw "7-Zip compression failed with exit code $LASTEXITCODE"
   }
 }
 
@@ -41,31 +169,8 @@ try {
     Write-ErrorAndExit "Source directory '$srcPath' does not exist."
   }
 
-  # Try to read version from src\manifest.json
-  $manifestPath = Join-Path $srcPath 'manifest.json'
-  $version = ''
-  if (Test-Path $manifestPath) {
-    try {
-      $manifestText = Get-Content -LiteralPath $manifestPath -Raw -ErrorAction Stop
-      $manifest = ConvertFrom-Json $manifestText
-      if ($manifest.Version) { $version = $manifest.Version }
-    } catch {
-      Write-Info "Warning: failed to read version from '$manifestPath' - proceeding without version."
-    }
-  } else {
-    Write-Info "Warning: manifest.json not found at '$manifestPath' - proceeding without version."
-  }
-
-  # Determine zip name; include version if available
-  if ([string]::IsNullOrWhiteSpace($ZipName)) {
-    if (-not [string]::IsNullOrWhiteSpace($version)) {
-      # sanitize version for filename (remove invalid chars)
-      $safeVersion = ($version -replace '[\\/:*?"<>|]', '_')
-      $ZipName = "MoreShedUpgrades_v${safeVersion}.zip"
-    } else {
-      $ZipName = "MoreShedUpgrades.zip"
-    }
-  }
+  $version = Get-VersionFromManifest $srcPath
+  $ZipName = Get-ZipFileName $ZipName $version
 
   # Ensure build directory exists
   $buildDir = Join-Path $repoRoot "build"
@@ -93,34 +198,21 @@ try {
     Remove-Item -LiteralPath $zipPath -Force
   }
 
-  Write-Info "Creating zip archive '$zipPath' from directory '$tempPath'..."
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  # Create zip via 7-Zip so that internal paths use forward slashes across OSes
+  $sevenZipExe = Resolve-SevenZip -PathParam $SevenZipPath
+  Write-Info "Using 7-Zip: $sevenZipExe"
 
-  # Create temporary zip directory that only contains our target folder
-  $zipTempDir = Join-Path $buildDir "zip_temp"
-  if (Test-Path $zipTempDir) {
-    Remove-Item -LiteralPath $zipTempDir -Recurse -Force
+  Push-Location $buildDir
+  try {
+    Invoke-SevenZipCompress $sevenZipExe $ZipName $TempDirName
+  } finally {
+    Pop-Location
   }
-  New-Item -ItemType Directory -Path $zipTempDir -Force | Out-Null
-
-  # Move temp folder to zip temp directory
-  $zipSourcePath = Join-Path $zipTempDir $TempDirName
-  Move-Item -LiteralPath $tempPath -Destination $zipSourcePath
-
-  # Create zip from the zip temp directory (includes the folder name)
-  [System.IO.Compression.ZipFile]::CreateFromDirectory($zipTempDir, $zipPath, 'Optimal', $false)
-
-  # Move the folder back for cleanup
-  Move-Item -LiteralPath $zipSourcePath -Destination $tempPath
-
-  # Clean up zip temp directory
-  Remove-Item -LiteralPath $zipTempDir -Recurse -Force
 
   Write-Info "Zip created successfully: $zipPath"
 
 } catch {
-  Write-Host "An error occurred: $_" -ForegroundColor Red
-  exit 1
+  Write-ErrorAndExit "Package creation failed: $_"
 } finally {
   # Cleanup temp directory if it exists
   if ($tempPath -and (Test-Path -LiteralPath $tempPath)) {
