@@ -19,6 +19,7 @@
       "Section": "DeluxeShed"
     },
     "DeluxeShedMaterial3ItemId": {
+      "Default": "",
       "AllowBlank": true,
       "Section": "DeluxeShed"
     },
