@@ -122,9 +122,9 @@
       "Name": "DeluxeShedTemplate",
       "Value": "3materials.json",
       "When": {
-        "HasValue:{{GalaxyShedMaterial1ItemId}}": "true",
-        "HasValue:{{GalaxyShedMaterial2ItemId}}": "true",
-        "HasValue:{{GalaxyShedMaterial3ItemId}}": "true"
+        "HasValue:{{DeluxeShedMaterial1ItemId}}": "true",
+        "HasValue:{{DeluxeShedMaterial2ItemId}}": "true",
+        "HasValue:{{DeluxeShedMaterial3ItemId}}": "true"
       }
     },
     {
