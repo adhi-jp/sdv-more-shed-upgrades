@@ -167,6 +167,53 @@ Quick steps to apply custom textures:
 2. Add the texture files matching each shed name (e.g., `DeluxeShed.png`, `GalaxyShed.png`, `InfinityShed.png`).
 3. Optional: add the paint mask files (e.g., `DeluxeShed_PaintMask.png`) to enable painting support.
 
+## Customizing Shed Interior Size
+
+You can change each shed's interior size to any dimensions you like by replacing the `.tbin` map data files bundled with this mod.
+
+A dedicated web app is available for generating custom `.tbin` files:
+
+**[SDV Shed Map Generator]**
+
+[<img src="./doc/sdv-shed-mapdata-generator.png" width="600" alt="SDV Shed Map Generator">][SDV Shed Map Generator]
+
+Default interior sizes for reference:
+
+| Shed Type     | Default Width | Default Height | CanCaskHere |
+| ------------- | ------------- | -------------- | ----------- |
+| Deluxe Shed   | 25            | 20             | No          |
+| Galaxy Shed   | 31            | 26             | Yes         |
+| Infinity Shed | 39            | 32             | Yes         |
+
+Steps:
+
+1. Open the [SDV Shed Map Generator].
+2. Select the **Shed Type** you want to customize (Deluxe Shed / Galaxy Shed / Infinity Shed).
+3. Enter the desired **Width** and **Height**.
+4. Check **CanCaskHere** if you want Casks to be placeable inside the shed.
+5. Click **Generate & Download** to download the `.tbin` file.
+6. Copy the downloaded `.tbin` file into `[CP] More Shed Upgrades/assets/Maps/`, replacing the existing file.
+7. Relaunch the game.
+
+File placement:
+
+```text
+📁 Stardew Valley
+ └╴📁 Mods
+    ├╴📁 [CP] More Shed Upgrades
+    │  ├╴📁 assets
+    │  │  ├╴📁 Buildings
+    │  │  └╴📁 Maps
+    │  │     ├╴📄 DeluxeShed.tbin
+    │  │     ├╴📄 GalaxyShed.tbin
+    │  │     └╴📄 InfinityShed.tbin
+    │  └╴📄 ... other files and folders ...
+    └╴📁 ... other mods ...
+```
+
+> [!WARNING]
+> Custom `.tbin` files in the `assets/Maps/` folder will be overwritten when the mod is updated. After updating, you will need to re-generate and replace any customized map files.
+
 ## Limitations with AlternativeTextures
 
 - The sheds added by this mod are not targeted by [AlternativeTextures].
@@ -185,3 +232,4 @@ More Shed Upgrades is developed and released under the [MIT](./LICENSE) license.
 [Mod Install Guide]: https://www.stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_mods
 [Generic Mod Config Menu]: https://www.nexusmods.com/stardewvalley/mods/5098
 [AlternativeTextures]: https://www.nexusmods.com/stardewvalley/mods/9246
+[SDV Shed Map Generator]: https://sdv-shed-mapdata-generator.netlify.app/
